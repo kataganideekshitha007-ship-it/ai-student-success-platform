@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudentSuccess AI</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── Sidebar Navigation ── -->
+<nav id="sidebar">
+    <div class="sidebar-brand">🎓 StudentSuccess AI</div>
+    <a href="#" class="nav-link active" data-page="dashboard">📊 Dashboard</a>
+    <a href="#" class="nav-link" data-page="analytics">📈 Analytics</a>
+    <a href="#" class="nav-link" data-page="profiles">👤 Student Profiles</a>
+    <a href="#" class="nav-link" data-page="predictor">🔮 Career Predictor</a>
+    <a href="#" class="nav-link" data-page="chatbot">🤖 AI Chatbot</a>
+</nav>
+
+<!-- ── Main Content Area ── -->
+<main id="main-content">
+
+    <!-- ═══ DASHBOARD PAGE ═══ -->
+    <section id="page-dashboard" class="page active">
+
+        <div class="page-header">
+            <h1>📊 Student Dashboard</h1>
+            <button class="btn btn-export" onclick="exportCSV()">📥 Export CSV</button>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-icon">👥</div>
+                <div class="kpi-info">
+                    <span class="kpi-value" id="kpi-total">0</span>
+                    <span class="kpi-label">Total Students</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">✅</div>
+                <div class="kpi-info">
+                    <span class="kpi-value" id="kpi-attendance">0%</span>
+                    <span class="kpi-label">Avg Attendance</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">📝</div>
+                <div class="kpi-info">
+                    <span class="kpi-value" id="kpi-marks">0%</span>
+                    <span class="kpi-label">Avg Marks</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🎯</div>
+                <div class="kpi-info">
+                    <span class="kpi-value" id="kpi-success">0%</span>
+                    <span class="kpi-label">Avg Success Score</span>
+                </div>
+            </div>
+            <div class="kpi-card risk-high">
+                <div class="kpi-icon">🔴</div>
+                <div class="kpi-info">
+                    <span class="kpi-value" id="kpi-atrisk">0</span>
+                    <span class="kpi-label">At-Risk Students</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <h3>Subject-wise Performance</h3>
+                <canvas id="chartSubjects"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Risk Distribution</h3>
+                <canvas id="chartRisk"></canvas>
+            </div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-card">
+                <h3>Attendance Trend (Last 6 Months)</h3>
+                <canvas id="chartTrend"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Study Hours vs Success Score</h3>
+                <canvas id="chartScatter"></canvas>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ═══ ANALYTICS PAGE ═══ -->
+    <section id="page-analytics" class="page">
+
+        <div class="page-header">
+            <h1>📈 Performance Analytics</h1>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>Department</label>
+                <select id="filterDept" onchange="applyFilters()">
+                    <option value="all">All Departments</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Mechanical">Mechanical</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Year</label>
+                <select id="filterYear" onchange="applyFilters()">
+                    <option value="all">All Years</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Risk Level</label>
+                <select id="filterRisk" onchange="applyFilters()">
+                    <option value="all">All Levels</option>
+                    <option value="Low">🟢 Low</option>
+                    <option value="Medium">🟡 Medium</option>
+                    <option value="High">🔴 High</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Filtered Analytics Charts -->
+        <div class="charts-row">
+            <div class="chart-card wide">
+                <h3>Filtered: Marks Distribution</h3>
+                <canvas id="chartFiltered"></canvas>
+            </div>
+        </div>
+
+        <!-- Analytics Bar Visual -->
+        <div class="analytics-bars" id="analyticsBars"></div>
+
+    </section>
+
+    <!-- ═══ STUDENT PROFILES PAGE ═══ -->
+    <section id="page-profiles" class="page">
+
+        <div class="page-header">
+            <h1>👤 Student Profiles</h1>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Search students..." oninput="renderProfiles()">
+            </div>
+        </div>
+
+        <div class="profiles-grid" id="profilesGrid"></div>
+
+        <!-- Student Detail Modal -->
+        <div id="studentModal" class="modal-overlay" onclick="closeModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <button class="modal-close" onclick="document.getElementById('studentModal').classList.remove('open')">&times;</button>
+                <div id="modalBody"></div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ═══ CAREER PREDICTOR PAGE ═══ -->
+    <section id="page-predictor" class="page">
+
+        <div class="page-header">
+            <h1>🔮 AI Career Predictor</h1>
+        </div>
+
+        <div class="predictor-layout">
+            <div class="input-card">
+                <h3>Enter Student Details</h3>
+
+                <label>Attendance (%)</label>
+                <input type="number" id="predAttendance" placeholder="e.g. 85" min="0" max="100">
+
+                <label>Average Marks (%)</label>
+                <input type="number" id="predMarks" placeholder="e.g. 75" min="0" max="100">
+
+                <label>Assignment Completion (%)</label>
+                <input type="number" id="predAssignments" placeholder="e.g. 90" min="0" max="100">
+
+                <label>Daily Study Hours</label>
+                <input type="number" id="predStudyHours" placeholder="e.g. 4" min="0" max="24" step="0.5">
+
+                <label>Strongest Subject</label>
+                <select id="predSubject">
+                    <option value="Python">Python</option>
+                    <option value="Java">Java</option>
+                    <option value="DBMS">DBMS</option>
+                    <option value="DSA">DSA</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Machine Learning">Machine Learning</option>
+                </select>
+
+                <button class="btn btn-primary" onclick="predictCareer()">
+                    🔍 Predict Career Path
+                </button>
+            </div>
+
+            <div class="prediction-result-card" id="predictionResult">
+                <div class="empty-state">
+                    <span class="empty-icon">🎯</span>
+                    <p>Enter student data and click <strong>Predict Career Path</strong> to get AI-based insights, success score, risk level, and recommended careers.</p>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ═══ CHATBOT PAGE ═══ -->
+    <section id="page-chatbot" class="page">
+
+        <div class="page-header">
+            <h1>🤖 AI Academic Chatbot</h1>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-msg bot">
+                    <div class="chat-avatar">🤖</div>
+                    <div class="chat-bubble">
+                        Hello! I'm your AI Academic Assistant. Ask me about study tips, career guidance, improving grades, or anything academic! Try typing <strong>"How can I improve my DSA skills?"</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" id="chatInput" placeholder="Type your question..." onkeydown="if(event.key==='Enter')sendChat()">
+                <button class="btn btn-primary" onclick="sendChat()">Send</button>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    <p>© 2026 StudentSuccess AI — AI-Powered Student Analytics &amp; Success Platform</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
